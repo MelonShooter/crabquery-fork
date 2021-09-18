@@ -409,7 +409,7 @@ impl Element {
     ///
     /// assert_eq!(el.text().unwrap(), "hi there");
     /// ```
-    pub fn text(&self) -> Option<String> {
+    pub fn text(&self) -> String {
         let mut res = "".to_string();
         let children = self.handle.children.borrow();
 
@@ -419,16 +419,16 @@ impl Element {
             }
         }
 
-        Some(res)
+        res
     }
 
-    pub fn deep_text(&self) -> Option<String> {
+    pub fn deep_text(&self) -> String {
         let mut res = String::new();
         let children = self.handle.children.borrow();
 
         self.deep_text_recursive(children, &mut res);
 
-        Some(res)
+        res
     }
 
     fn deep_text_recursive(&self, children: Ref<Vec<Arc<Node>>>, res: &mut String) {
@@ -826,7 +826,7 @@ mod tests {
         let doc = Document::from("<span>text hi there</span>");
         let sel = doc.select("span");
         let el = sel.first().unwrap();
-        assert_eq!(el.text().unwrap(), "text hi there".to_string());
+        assert_eq!(el.text(), "text hi there".to_string());
     }
 
     #[test]
@@ -841,7 +841,7 @@ mod tests {
         let sel = doc.select("div");
         let el = sel.first().unwrap();
         assert_eq!(el.children().len(), 3);
-        assert_eq!(el.children().first().unwrap().text().unwrap(), "one");
+        assert_eq!(el.children().first().unwrap().text(), "one");
     }
 
     #[test]
