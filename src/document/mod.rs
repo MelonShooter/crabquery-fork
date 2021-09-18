@@ -449,14 +449,8 @@ impl Element {
                 NodeData::Text { contents } => {
                     res.push_str(&contents.borrow().to_string().as_str())
                 }
-                NodeData::Element {
-                    template_contents, ..
-                } => {
-                    if let Some(contents) = template_contents {
-                        for child in contents.children.borrow().iter() {
-                            self.deep_text_recursive(child.children.borrow(), res);
-                        }
-                    }
+                NodeData::Element { .. } => {
+                    self.deep_text_recursive(child.children.borrow(), res);
                 }
                 _ => (),
             }
@@ -473,7 +467,7 @@ impl Element {
     /// let sel = doc.select("a");
     /// let el = sel.first().unwrap();
     ///
-    /// assert_eq!(el.children().first().unwrap().text().unwrap(), "hi there");
+    /// assert_eq!(el.children().first().unwrap().text(), "hi there");
     /// ```
     pub fn children(&self) -> Vec<Element> {
         self.handle
