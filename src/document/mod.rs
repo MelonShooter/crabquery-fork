@@ -640,6 +640,16 @@ mod tests {
     // } //}}}
 
     // Element tests{{{
+
+    #[test]
+    fn test_deep_text() {
+        let doc = Document::from("<p>test <a class='link'>hi there</a> test2</p>");
+        let sel = doc.select("p");
+        let el = sel.first().unwrap();
+
+        assert_eq!(el.deep_text(), "test hi there test2");
+    }
+
     #[test]
     fn test_el_tag() {
         let doc = Document::from("<a class='link'>hi there</a>");
