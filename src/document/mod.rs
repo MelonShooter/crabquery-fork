@@ -14,7 +14,7 @@ use html5ever::parse_document;
 use html5ever::tendril::TendrilSink;
 use html5ever::tree_builder::TreeBuilderOpts;
 use markup5ever::{Attribute, QualName};
-use markup5ever_arcdom::{ArcDom, Handle, NodeData};
+use markup5ever_arcdom::{ArcDom, Handle, Node, NodeData};
 use std::cell::Ref;
 use std::collections::HashMap;
 use std::default::Default;
@@ -420,6 +420,35 @@ impl Element {
         }
 
         Some(res)
+    }
+
+    pub fn deep_text(&self) -> Option<String> {
+        let mut res = String::new();
+        let children = self.handle.children.borrow();
+
+        self.deep_text_recursive(children, &mut res);
+
+        Some(res)
+    }
+
+    fn deep_text_recursive(&self, children: Ref<Vec<Arc<Node>>>, res: &mut String) {
+        for child in children.iter() {
+            match &child.data {
+                NodeData::Text { contents } => {
+                    res.push_str(&contents.borrow().to_string().as_str())
+                }
+                NodeData::Element {
+                    template_contents, ..
+                } => {
+                    if let Some(contents) = template_contents {
+                        for child in contents.children.borrow().iter() {
+                            self.deep_text_recursive(child.children.borrow(), res);
+                        }
+                    }
+                }
+                _ => (),
+            }
+        }
     }
 
     /// Get children elements
