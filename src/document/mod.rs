@@ -407,7 +407,7 @@ impl Element {
     /// let sel = doc.select("a");
     /// let el = sel.first().unwrap();
     ///
-    /// assert_eq!(el.text().unwrap(), "hi there");
+    /// assert_eq!(el.text(), "hi there");
     /// ```
     pub fn text(&self) -> String {
         let mut res = "".to_string();
@@ -422,6 +422,18 @@ impl Element {
         res
     }
 
+    /// Gets text recursively.
+    ///
+    /// # Example
+    /// ```
+    /// use crabquery::Document;
+    ///
+    /// let doc = Document::from("<p>test <a class='link'>hi there</a> test2</p>");
+    /// let sel = doc.select("p");
+    /// let el = sel.first().unwrap();
+    ///
+    /// assert_eq!(el.deep_text(), "test hi there test2");
+    /// ```
     pub fn deep_text(&self) -> String {
         let mut res = String::new();
         let children = self.handle.children.borrow();
