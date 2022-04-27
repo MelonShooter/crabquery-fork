@@ -273,10 +273,8 @@ fn get_attr(attrs: &Ref<'_, Vec<Attribute>>, name: &str) -> Option<String> {
     attrs
         .iter()
         .filter(|attr| &attr.name.local == name)
-        .take(1)
         .map(|attr| attr.value.to_string())
-        .collect::<Vec<_>>()
-        .pop()
+        .next()
 }
 
 impl Selector {
@@ -334,10 +332,9 @@ impl Selector {
 
         elements.iter().map(Element::from).collect()
     }
-} //}}}
+}
 
 pub struct Element {
-    //{{{
     handle: Handle,
 }
 
@@ -390,9 +387,9 @@ impl Element {
     ///
     /// assert_eq!(el.tag().unwrap(), "a");
     /// ```
-    pub fn tag(&self) -> Option<String> {
+    pub fn tag(&self) -> Option<&str> {
         match self.handle.data {
-            NodeData::Element { ref name, .. } => Some(name.local.to_string()),
+            NodeData::Element { ref name, .. } => Some(&*name.local),
             _ => None,
         }
     }
@@ -474,13 +471,7 @@ impl Element {
             .children
             .borrow()
             .iter()
-            .filter(|n| {
-                if let NodeData::Element { .. } = n.data {
-                    true
-                } else {
-                    false
-                }
-            })
+            .filter(|n| matches!(n.data, NodeData::Element { .. }))
             .map(Element::from)
             .collect::<Vec<_>>()
     }
@@ -655,7 +646,7 @@ mod tests {
         let doc = Document::from("<a class='link'>hi there</a>");
         let sel = doc.select("a");
         let el = sel.first().unwrap();
-        assert_eq!(el.tag(), Some("a".to_string()));
+        assert_eq!(el.tag(), Some("a"));
     }
 
     #[test]
